@@ -1,0 +1,50 @@
+<html>
+  <head><title>BNF Parser</title></head>
+  <body>
+    <script type="text/javascript" src="bnfparser.js"></script>
+    <textarea id="bnf" placeholder="BNF Here" cols="100" rows="15"><expression> ::= <factor> | <factor>  +  <factor> | <factor> + <expression>
+<factor> ::= <id> | ( <expression> ) | <factor> * <factor>
+<id> ::=  W | X | Y | Z
+</textarea>
+    <textarea id="str" placeholder="String to Parse Here" cols="120" rows="15">X + Y * Z + W</textarea><br/>
+    <button type="button" onclick="bnf_go()">Parse BNF</button>
+    <div id="out"><i>Output goes here</i></div>
+    <style type="text/css">
+      .rulespan {
+        border:     1px solid #084;
+        margin:     2px;
+        display:    inline-block;
+        text-align: center;
+      }
+      .tokenspan {
+        border:     1px solid #800;
+        margin:     2px;
+        display:    inline-block;
+        padding:    3px;
+        text-align: center;
+      }
+    </style>
+    <script type="text/javascript">
+      function output_a(a) {
+        if (a == undefined)
+          return "???";
+        if (a.type != "rule")
+          return '<span class="tokenspan">' + a.name + '</span>';
+        var res = '<span class="rulespan">' + bnf.nencode(a.name) + "<br/>";
+        for (var i = 0; i < a.ast.length; ++i)
+          res += output_a(a.ast[i]);
+        return res + '</span>';
+      }
+      function bnf_go() {
+        x = document.getElementById("bnf");
+        y = document.getElementById("str");
+        z = document.getElementById("out");
+        var rules = bnf.parse_rules(x.value);
+        console.log(rules);
+        var ast = bnf.parse_string(y.value, rules);
+        console.log(ast);
+        z.innerHTML = output_a(ast);
+      }
+    </script>
+  </body>
+</html>
