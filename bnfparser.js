@@ -223,7 +223,7 @@ function parse_string(string, rules) {
     return ast;
   }
   
-  var tolerance = 10;
+  var tolerance = 64;
   var worthless_nests = 0;
   var last_position = 0;
   

@@ -1,15 +1,12 @@
 <html>
-  <head><title>BNF Parser</title></head>
-  <body>
-    <script type="text/javascript" src="bnfparser.js"></script>
-    <textarea id="bnf" placeholder="BNF Here" cols="100" rows="15"><expression> ::= <factor> | <factor>  +  <factor> | <factor> + <expression>
-<factor> ::= <id> | ( <expression> ) | <factor> * <factor>
-<id> ::=  W | X | Y | Z
-</textarea>
-    <textarea id="str" placeholder="String to Parse Here" cols="120" rows="15">X + Y * Z + W</textarea><br/>
-    <button type="button" onclick="bnf_go()">Parse BNF</button>
-    <div id="out"><i>Output goes here</i></div>
+  <head>
+    <title>BNF Parser</title>
     <style type="text/css">
+      .displaydiv {
+        width:        100%;
+        overflow:     auto;
+        white-space:  nowrap;
+      }
       .rulespan {
         border:     1px solid #084;
         margin:     2px;
@@ -24,6 +21,16 @@
         text-align: center;
       }
     </style>
+  </head>
+  <body>
+    <script type="text/javascript" src="bnfparser.js"></script>
+    <textarea id="bnf" placeholder="BNF Here" cols="100" rows="15"><expression> ::= <factor> | <factor>  +  <factor> | <factor> + <expression>
+<factor> ::= <id> | ( <expression> ) | <factor> * <factor>
+<id> ::=  W | X | Y | Z
+</textarea>
+    <textarea id="str" placeholder="String to Parse Here" cols="120" rows="15">X + Y * Z + W</textarea><br/>
+    <button type="button" onclick="bnf_go()">Parse BNF</button>
+    <div id="out" class="displaydiv"><i>Output goes here</i></div>
     <script type="text/javascript">
       function output_a(a) {
         if (a == undefined)

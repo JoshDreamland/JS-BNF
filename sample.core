@@ -1,0 +1,8 @@
+program int X; begin
+  X = 10;
+  if (X == 5) then
+    X = 7;
+  else
+    X = 3;
+  end;
+end
