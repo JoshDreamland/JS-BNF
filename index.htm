@@ -52,7 +52,12 @@
         console.log(rules);
         var ast = bnf.parse_string(y.value, rules);
         console.log(ast);
-        z.innerHTML = output_a(ast);
+        if (ast && ast.type != "error")
+          z.innerHTML = output_a(ast);
+        else if (ast)
+          z.innerHTML = "ERROR: Line " + ast.line + ", position " + ast.position + ": " + bnf.nencode(ast.error);
+        else
+          z.innerHTML = "A parsing error has occurred. No additional information is available.";
       }
     </script>
   </body>

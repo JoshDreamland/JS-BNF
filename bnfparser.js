@@ -112,14 +112,25 @@ var sqwat = 0;
 
 function parse_string(string, rules) {
   var pos = 0;
+  var max_streak = 0;
+  var most_likely_error = {};
   
   function visit_rule_opt(rule, reject_ast, attempt)
   {
     // Keep track of what we've read; this is also what we'll return
     var ast = reject_ast;
     
-    function backtrack() // Backtracking might happen. Oh noes.
+    function backtrack(errtxt, heuristic) // Backtracking might happen. Oh noes.
     {
+      if (pos >= max_streak && errtxt != undefined && errtxt) {
+        if (pos > max_streak)
+          most_likely_error = {};
+        if (most_likely_error[errtxt] == undefined)
+          most_likely_error[errtxt] = 0;
+        most_likely_error[errtxt] = Math.max(most_likely_error[errtxt], heuristic);
+        max_streak = pos;
+      }
+      
       // Start throwing away stuff we parsed until we're out of options.
       while (ast.length)
       {
@@ -153,7 +164,7 @@ function parse_string(string, rules) {
     
     // If we have been down this road before, but yielded nothing useful
     if (ast.length) // This means we read an ast correctly, but it was junk, anyway. Backtrack.
-      if (!backtrack()) // If we fail to backtrack
+      if (!backtrack("Extra symbols at end of input", 10)) // If we fail to backtrack
         return null; // Give up. Our caller will backtrack.
       
     
@@ -181,7 +192,7 @@ function parse_string(string, rules) {
         var stree = visit_rule(item, rules[item], (i < ast.length)? ast[i] : null);
         
         if (stree == null) { // We've hit a wall; backtrack.
-          if (!backtrack()) // If we couldn't backtrack, then abort; this rule is a dud.
+          if (!backtrack("Expected " + item, i)) // If we couldn't backtrack, then abort; this rule is a dud.
             return null; // Our caller will take care of incrementing the rule option.
           i = ast.length - 1;
           continue;
@@ -199,7 +210,7 @@ function parse_string(string, rules) {
       }
       else {
         if (string.substr(pos, item.length) != item) { // If the expected token isn't encountered, we've made a mistake.
-          if (!backtrack()) // If we couldn't backtrack, then abort; this rule is a dud.
+          if (!backtrack("Expected `" + item + "'", i)) // If we couldn't backtrack, then abort; this rule is a dud.
             return null; // Our caller will take care of incrementing the rule option.
           i = ast.length - 1;
           continue;
@@ -284,9 +295,28 @@ function parse_string(string, rules) {
     brute_rule.push([r]);
   var res = visit_rule("<>", brute_rule, null);
   while (pos < string.length) {
-    if (res == null) return null;
+    if (res == null) break;
     res = visit_rule("<>", brute_rule, res);
   }
+  
+  if (!res) {
+    if (most_likely_error) {
+      var encompassed = string.substr(0, max_streak);
+      var line = (encompassed.match(/(\r\n|\n|\r)/g) || []).length + 1;
+      var errpos = max_streak - Math.max(encompassed.lastIndexOf("\n"), encompassed.lastIndexOf("\r"));
+      var ec = 0;
+      var the_most_likely_error = "[No error text]";
+      for (err in most_likely_error)
+        if (most_likely_error[err] > ec) {
+          the_most_likely_error = err;
+          ec = most_likely_error[err];
+        } else if (most_likely_error[err] == ec)
+          the_most_likely_error += " OR " + err;
+      res = { type: "error", error: the_most_likely_error, line: line, position: errpos }
+      console.log(most_likely_error);
+    }
+  }
+  
   return res;
 }
 
