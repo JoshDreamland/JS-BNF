@@ -1,21 +1,25 @@
 <prog>     ::= program <decl seq> begin <stmt seq> end
 <decl seq> ::= <decl> | <decl> <decl seq>
-<stmt seq> ::= <stmt> | <stmt> <stmt seq>
+<stmt seq> ::= <stmt> <stmt seq> | <stmt>
 <decl>     ::= int  <id list>;
-<id list>  ::= <id> | <id>, <id list>
-<stmt>     ::= <assign>|<if>|<loop>|<in>|<out>
+<id list>  ::= <id>, <id list> | <id>
+<stmt>     ::= <assign>|<if>|<loop>|<in>|<out>|<output>|<input>|<select>
 <assign>   ::= <id> = <exp>;
 <if>       ::= if <cond> then <stmt seq> end; | if <cond> then <stmt seq> else <stmt seq> end;
 <loop>     ::= while <cond> loop <stmt seq> end;
 <input>    ::= read <id list>;
 <output>   ::= write <id list>;
 <cond>	   ::= <comp> | !<cond> | [<cond> && <cond>] | [<cond> or <cond>]
-<comp>     ::= (<op> <comp op> <op>)
+<comp>     ::= ( <op> <comp op> <op> )
 <exp>      ::= <fac> | <fac> + <exp> | <fac> - <exp>
 <fac>      ::= <op> | <op> * <fac>
 <op>       ::= <int> | <id> | (<exp>)
 <comp op>  ::= != | == | < | > | <= | >=
-<id>       ::= <let> | <let><id> | <let><int>
+<id>       ::= <let><id> | <let><int> | <let>
 <let>      ::= A | B | C | D | E | F | G | H | I | J | K | L | M | N | O | P | Q | R | S | T | U | V | W | X | Y | Z
-<int>      ::= <digit> | <digit><int>
+<int>      ::= <digit><int> | <digit>
 <digit>    ::= 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9
+<select>   ::= select <selseq> end;
+<selseq>   ::= <selitem> &pipe;&pipe; <selseq> | <selitem>
+<selitem>  ::= <cond> -> <stmt seq>
+

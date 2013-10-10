@@ -1,0 +1,27 @@
+generic: function(ast, ops) {
+  res = "";
+  if (ast.type == "rule")
+    for (var i = 0; i < ast.ast.length; ++i)
+      res += (res.length? " ":"") + operate(ast.ast[i], ops);
+  else if (ast.type == "token")
+    res = ({
+      "program": 01, "else":  07,
+      "begin":   02, "while": 08, 
+      "end":     03, "loop":  09,
+      "int":     04, "read":  10,
+      "if":      05, "write": 11,
+      "then":    06, 
+      "end;": "3 12", /* See remarks */
+      ";":  12, "]":  17, "-":  23,
+      ",":  13, "||": 19, "*":  24,
+      "=":  14, "(":  20, "!=": 25,
+      "!":  15, ")":  21, "==": 26,
+      "[":  16, "+":  22,
+      "&&": 18,
+      "<":  27, "<=": 29,
+      ">":  28, ">=": 30
+    })[ast.name];
+  return res;
+},
+"<id>":  function(id, ops) { return 32; },
+"<int>": function(id, ops) { return 31; }
