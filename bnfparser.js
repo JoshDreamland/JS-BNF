@@ -42,12 +42,14 @@
 
 var bnf = (function() {
 
+/** Decode a string containing escaped symbols &lt; &gt; &pipe; &#124; and &amp; */
 function ndecode(x) {
-  return x.replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g,"&");
+  return x.replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&pipe;/g,"|").replace(/&x7C;/g,"|").replace(/&amp;/g,"&");
 }
 
+/** Encode a string containing special symbols to use the HTML-compliant, BNF-friendly escaped equivalents. */
 function nencode(x) {
-  return x.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  return x.replace(/&/g, "&amp;").replace(/\|/g, "&#124;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
 
 /**
@@ -320,15 +322,43 @@ function parse_string(string, rules) {
   return res;
 }
 
+
+/**
+ * Traverse an AST, calling operations on each node.
+ * @param ast  An AST previously obtained from calling parse_string.
+ * @param ops  JSON of the operator functions to call on the AST.
+**/
+function operate_string(ast, ops) {
+  p_ops = eval("operate = bnf.operate; ({ " + ops + " })");
+  if (!p_ops) return "Failure";
+  return operate(ast, p_ops);
+}
+
+/**
+ * Traverse an AST, calling the appropriate operation on each node.
+ * @param ast  An AST previously obtained from calling parse_string.
+ * @param ops  Map of operator functions to call on AST subtrees of each rule.
+ * 
+ * @note  If a rule name is not contained in the mapping, the function for the
+ *        rule named "generic" will be invoked on the AST instead.
+**/
+function operate(ast, ops) {
+  if (ast.type == "rule" && ops[ast.name] != undefined)
+    return (ops[ast.name])(ast, ops);
+  return (ops['generic'])(ast, ops);
+}
+
 /* Ship everything back down through our pseudo-namespace.
  * JavaScript is funny, sometimes.
 */
 
 return {
-  parse_rules:  parse_rules,
-  parse_string: parse_string,
-  nencode:      nencode,
-  ndecode:      ndecode
+  parse_rules:     parse_rules,
+  parse_string:    parse_string,
+  operate_string:  operate_string,
+  operate:         operate,
+  nencode:         nencode,
+  ndecode:         ndecode
 };
 
 })();

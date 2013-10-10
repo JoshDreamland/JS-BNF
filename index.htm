@@ -26,13 +26,74 @@
   </head>
   <body>
     <script type="text/javascript" src="bnfparser.js"></script>
-    <textarea id="bnf" placeholder="BNF Here" cols="100" rows="15"><expression> ::= <factor> | <factor>  +  <factor> | <factor> + <expression>
-<factor> ::= <id> | ( <expression> ) | <factor> * <factor>
-<id> ::=  W | X | Y | Z
+    <textarea id="bnf" placeholder="BNF Here" cols="100" rows="15">
+&lt;prog&gt;     ::= program &lt;decl seq&gt; begin &lt;stmt seq&gt; end
+&lt;decl seq&gt; ::= &lt;decl&gt; | &lt;decl&gt; &lt;decl seq&gt;
+&lt;stmt seq&gt; ::= &lt;stmt&gt; | &lt;stmt&gt; &lt;stmt seq&gt;
+&lt;decl&gt;     ::= int  &lt;id list&gt;;
+&lt;id list&gt;  ::= &lt;id&gt;, &lt;id list&gt; | &lt;id&gt;
+&lt;stmt&gt;     ::= &lt;assign&gt;|&lt;if&gt;|&lt;loop&gt;|&lt;in&gt;|&lt;out&gt;|&lt;select&gt;
+&lt;assign&gt;   ::= &lt;id&gt; = &lt;exp&gt;;
+&lt;if&gt;       ::= if &lt;cond&gt; then &lt;stmt seq&gt; end; | if &lt;cond&gt; then &lt;stmt seq&gt; else &lt;stmt seq&gt; end;
+&lt;loop&gt;     ::= while &lt;cond&gt; loop &lt;stmt seq&gt; end;
+&lt;input&gt;    ::= read &lt;id list&gt;;
+&lt;output&gt;   ::= write &lt;id list&gt;;
+&lt;cond&gt;	   ::= &lt;comp&gt; | !&lt;cond&gt; | [&lt;cond&gt; &amp;&amp; &lt;cond&gt;] | [&lt;cond&gt; or &lt;cond&gt;]
+&lt;comp&gt;     ::= ( &lt;op&gt; &lt;comp op&gt; &lt;op&gt; )
+&lt;exp&gt;      ::= &lt;fac&gt; | &lt;fac&gt; + &lt;exp&gt; | &lt;fac&gt; - &lt;exp&gt;
+&lt;fac&gt;      ::= &lt;op&gt; | &lt;op&gt; * &lt;fac&gt;
+&lt;op&gt;       ::= &lt;int&gt; | &lt;id&gt; | (&lt;exp&gt;)
+&lt;comp op&gt;  ::= != | == | &lt; | &gt; | &lt;= | &gt;=
+&lt;id&gt;       ::= &lt;let&gt;&lt;id&gt; | &lt;let&gt;&lt;int&gt; | &lt;let&gt;
+&lt;let&gt;      ::= A | B | C | D | E | F | G | H | I | J | K | L | M | N | O | P | Q | R | S | T | U | V | W | X | Y | Z
+&lt;int&gt;      ::= &lt;digit&gt;&lt;int&gt; | &lt;digit&gt;
+&lt;digit&gt;    ::= 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9
+&lt;select&gt;   ::= select &lt;selseq&gt; end;
+&lt;selseq&gt;   ::= &lt;selitem&gt; &amp;pipe;&amp;pipe; &lt;selseq&gt; | &lt;selitem&gt;
+&lt;selitem&gt;  ::= &lt;cond&gt; -&gt; &lt;stmt seq&gt;
 </textarea>
-    <textarea id="str" placeholder="String to Parse Here" cols="120" rows="15">X + Y * Z + W</textarea><br/>
+    <textarea id="str" placeholder="String to Parse Here" cols="120" rows="15">
+program int X; begin
+  X = 10;
+  if (X == 5) then
+    X = 7;
+  else
+    X = 3;
+  end;
+end
+</textarea><br/>
     <button type="button" onclick="bnf_go()">Parse BNF</button>
     <div id="out" class="displaydiv"><i>Output goes here</i></div>
+    <textarea cols="64" rows="25" id="ops">
+generic: function(ast, ops) {
+  res = "";
+  if (ast.type == "rule")
+    for (var i = 0; i &lt; ast.ast.length; ++i)
+      res += (res.length? " ":"") + operate(ast.ast[i], ops);
+  else if (ast.type == "token")
+    res = ({
+      "program": 01, "else":  07,
+      "begin":   02, "while": 08, 
+      "end":     03, "loop":  09,
+      "int":     04, "read":  10,
+      "if":      05, "write": 11,
+      "then":    06, 
+      "end;": "3 12", /* See remarks */
+      ";":  12, "]":  17, "-":  23,
+      ",":  13, "||": 19, "*":  24,
+      "=":  14, "(":  20, "!=": 25,
+      "!":  15, ")":  21, "==": 26,
+      "[":  16, "+":  22,
+      "&amp;&amp;": 18,
+      "&lt;":  27, "&lt;=": 29,
+      "&gt;":  28, "&gt;=": 30
+    })[ast.name];
+  return res;
+},
+"&lt;id&gt;":  function(id, ops) { return 32; },
+"&lt;int&gt;": function(id, ops) { return 31; }
+</textarea>
+<textarea cols="128" rows="25" readonly placeholder="Token IDs will appear here." id="conout"></textarea>
     <script type="text/javascript">
       function output_a(a) {
         if (a == undefined)
@@ -48,12 +109,16 @@
         x = document.getElementById("bnf");
         y = document.getElementById("str");
         z = document.getElementById("out");
+        p = document.getElementById("ops");
+        q = document.getElementById("conout");
         var rules = bnf.parse_rules(x.value);
         console.log(rules);
-        var ast = bnf.parse_string(y.value, rules);
+        ast = bnf.parse_string(y.value.trim(), rules);
         console.log(ast);
-        if (ast && ast.type != "error")
+        if (ast && ast.type != "error") {
           z.innerHTML = output_a(ast);
+          q.value = bnf.operate_string(ast, p.value);
+        }
         else if (ast)
           z.innerHTML = "ERROR: Line " + ast.line + ", position " + ast.position + ": " + bnf.nencode(ast.error);
         else
