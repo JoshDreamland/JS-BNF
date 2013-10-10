@@ -29,10 +29,10 @@
     <textarea id="bnf" placeholder="BNF Here" cols="100" rows="15">
 &lt;prog&gt;     ::= program &lt;decl seq&gt; begin &lt;stmt seq&gt; end
 &lt;decl seq&gt; ::= &lt;decl&gt; | &lt;decl&gt; &lt;decl seq&gt;
-&lt;stmt seq&gt; ::= &lt;stmt&gt; | &lt;stmt&gt; &lt;stmt seq&gt;
+&lt;stmt seq&gt; ::= &lt;stmt&gt; &lt;stmt seq&gt; | &lt;stmt&gt;
 &lt;decl&gt;     ::= int  &lt;id list&gt;;
 &lt;id list&gt;  ::= &lt;id&gt;, &lt;id list&gt; | &lt;id&gt;
-&lt;stmt&gt;     ::= &lt;assign&gt;|&lt;if&gt;|&lt;loop&gt;|&lt;in&gt;|&lt;out&gt;|&lt;select&gt;
+&lt;stmt&gt;     ::= &lt;assign&gt;|&lt;if&gt;|&lt;loop&gt;|&lt;in&gt;|&lt;out&gt;|&lt;output&gt;|&lt;input&gt;|&lt;select&gt;
 &lt;assign&gt;   ::= &lt;id&gt; = &lt;exp&gt;;
 &lt;if&gt;       ::= if &lt;cond&gt; then &lt;stmt seq&gt; end; | if &lt;cond&gt; then &lt;stmt seq&gt; else &lt;stmt seq&gt; end;
 &lt;loop&gt;     ::= while &lt;cond&gt; loop &lt;stmt seq&gt; end;
