@@ -41,9 +41,9 @@
 &lt;output&gt;   ::= write &lt;id list&gt; ;
 &lt;cond&gt;	   ::= &lt;comp&gt; | ! &lt;cond&gt; | [ &lt;cond&gt; &amp;&amp; &lt;cond&gt; ] | [ &lt;cond&gt; or &lt;cond&gt; ]
 &lt;comp&gt;     ::= ( &lt;op&gt; &lt;comp op&gt; &lt;op&gt; )
-&lt;exp&gt;      ::= &lt;fac&gt; | &lt;fac&gt; + &lt;exp&gt; | &lt;fac&gt; - &lt;exp&gt;
-&lt;fac&gt;      ::= &lt;op&gt; | &lt;op&gt; * &lt;fac&gt;
-&lt;op&gt;       ::= &lt;int&gt; | &lt;id&gt; | ( &lt;exp&gt; )
+&lt;exp&gt;      ::= &lt;fac&gt; + &lt;exp&gt; | &lt;fac&gt; - &lt;exp&gt; | &lt;fac&gt;
+&lt;fac&gt;      ::= &lt;op&gt; * &lt;fac&gt; | &lt;op&gt;
+&lt;op&gt;       ::= ( &lt;exp&gt; ) | &lt;int&gt; | &lt;id&gt;
 &lt;comp op&gt;  ::= != | == | &lt; | &gt; | &lt;= | &gt;=
 &lt;id&gt;       ::= &lt;let&gt;&lt;id&gt; | &lt;let&gt;&lt;int&gt; | &lt;let&gt;
 &lt;let&gt;      ::= A | B | C | D | E | F | G | H | I | J | K | L | M | N | O | P | Q | R | S | T | U | V | W | X | Y | Z
