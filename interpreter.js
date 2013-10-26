@@ -338,7 +338,7 @@ interpreter = {
       assertWhite(ast, 1);
       assertWhite(ast, 3);
       assertToken(ast, 4, ")");
-      
+      return operateRule(ast.ast[2], ops, true);
     },
   "<id>":
     function(ast, ops) {
